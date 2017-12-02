@@ -3,19 +3,17 @@ package it.sample.model;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
- * Represent a subset of a country take from ws https://restcountries.eu/rest/v2/all
+ * Represents a subset of a country take from ws https://restcountries.eu/rest/v2/all
  *
  * @author ccardone
  */
-@ToString
-@NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class Country {
 
    @Getter

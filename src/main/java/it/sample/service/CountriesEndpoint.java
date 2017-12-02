@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.http.HttpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 
+import it.sample.model.CountriesServiceResponse;
 import it.sample.model.Country;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,34 +21,65 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author ccardone
  */
-@Component("countriesEndpoint")
+@Service("countriesEndpoint")
 @Slf4j
 public class CountriesEndpoint {
+
+   private static final String DEFAULT_PAGE_SIZE = "10";
 
    @Autowired
    private RestCountriesClient restCountriesClient;
 
-   // TODO ADD AUTHENTICATION AND PAGINATION
-   public Message<List<Country>> get(Message<?> msg) {
-
-      log.trace("Countries Endpoint");
-
-      List<Country> allWithNameAndCurrency;
+   // TODO ADD AUTHENTICATION
+   public Message<CountriesServiceResponse> get(Message<MultiValueMap<String, String>> msg) {
       int statusCode = 200;
+      CountriesServiceResponse countriesServiceResponse;
 
       try {
-         allWithNameAndCurrency = restCountriesClient.getAllWithNameAndCurrency();
+         log.trace("Countries Endpoint");
 
+         if (log.isTraceEnabled()) {
+            msg.getHeaders().forEach((k, v) -> log.trace("{} -> {}", k, v));
+         }
+
+         MultiValueMap<String, String> parameters = msg.getPayload();
+
+         if (log.isDebugEnabled()) {
+            parameters.forEach((k, v) -> log.debug("{} -> {}", k, v));
+         }
+
+         Map<String, String> singleValueMap = parameters.toSingleValueMap();
+
+         int pageSize = Integer.parseInt(singleValueMap.getOrDefault("pageSize", DEFAULT_PAGE_SIZE));
+         int currentPage = Integer.parseInt(singleValueMap.getOrDefault("page", "0"));
+
+         List<Country> allWithNameAndCurrency = restCountriesClient.getAllWithNameAndCurrency();
+
+         countriesServiceResponse = getCountriesServiceResponse(pageSize, currentPage, allWithNameAndCurrency);
       } catch (Exception e) {
-         log.error("Unexpected error calling rest countries" + e.getMessage(), e);
+         log.error("Unexpected error " + e.getMessage(), e);
          statusCode = 500;
-         allWithNameAndCurrency = Collections.emptyList();
+
+         // TODO ADD EXCEPTION HANLDER TO TRANSALTE EXCEPTION INTO HUMAN READABLE MESSAGES
+         countriesServiceResponse = new CountriesServiceResponse(0, 0, 0, Collections.emptyList(), e.getMessage());
       }
 
       Map<String, Object> headers = new HashMap<>();
       headers.put(HttpHeaders.STATUS_CODE, statusCode);
-      Message<List<Country>> message = new GenericMessage<>(allWithNameAndCurrency, headers);
-      return message;
+
+      return new GenericMessage<>(countriesServiceResponse, headers);
+   }
+
+   private CountriesServiceResponse getCountriesServiceResponse(int pageSize, int currentPage, List<Country> allWithNameAndCurrency) {
+      CountriesServiceResponse countriesServiceResponse;
+      int totalItems = allWithNameAndCurrency.size();
+      int fromIndex = currentPage * pageSize;
+      int toIndex = fromIndex + pageSize > totalItems ? totalItems : fromIndex + pageSize;
+
+      List<Country> subList = allWithNameAndCurrency.subList(fromIndex, toIndex);
+
+      countriesServiceResponse = new CountriesServiceResponse(totalItems, currentPage, pageSize, subList, "OK");
+      return countriesServiceResponse;
    }
 
 }

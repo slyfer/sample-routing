@@ -47,7 +47,9 @@
         <!-- by default simply renders json -->
         <property name="defaultViews">
             <list>
-                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
+                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
+                    <constructor-arg ref="customObjectMapper" />
+                </bean>
             </list>
         </property>
     </bean>
