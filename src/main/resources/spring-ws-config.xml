@@ -3,13 +3,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:int="http://www.springframework.org/schema/integration"
-       xmlns:int-ws="http://www.springframework.org/schema/integration/ws"
        xmlns:int-http="http://www.springframework.org/schema/integration/http"
-       xmlns:stream="http://www.springframework.org/schema/integration/stream"
        xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/integration/ws http://www.springframework.org/schema/integration/ws/spring-integration-ws.xsd
 		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
-		http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
 		http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
@@ -19,7 +15,7 @@
 
     <!-- channels -->
     <int:channel id="countriesRequestChannel"/>
-    <int:channel id="countriesOutputChannel" />
+    <int:channel id="countriesOutputChannel"/>
 
     <!-- inbound gateway for /countries -->
     <int-http:inbound-gateway id="ws-inbound-gateway"
@@ -34,12 +30,12 @@
     <int:service-activator ref="countriesEndpoint"
                            method="get"
                            input-channel="countriesRequestChannel"
-                           output-channel="countriesOutputChannel" />
+                           output-channel="countriesOutputChannel"/>
 
 
     <!-- configuring views -->
     <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
-        <property name="order" value="1" />
+        <property name="order" value="1"/>
 
         <!-- setup default content type -->
         <property name="contentNegotiationManager">
@@ -51,9 +47,15 @@
         <!-- by default simply renders json -->
         <property name="defaultViews">
             <list>
-                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
             </list>
         </property>
     </bean>
+
+    <!-- REST TEMPLATE -->
+    <!--
+        In real world we must add timeouts, proxy, etc...
+    -->
+    <bean class="org.springframework.web.client.RestTemplate" id="restTemplate"/>
 
 </beans>

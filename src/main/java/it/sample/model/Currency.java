@@ -1,6 +1,8 @@
 package it.sample.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -10,6 +12,8 @@ import lombok.ToString;
  * @author ccardone
  */
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Currency {
 
    @Getter

@@ -2,7 +2,9 @@ package it.sample.model;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -12,11 +14,13 @@ import lombok.ToString;
  * @author ccardone
  */
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Country {
 
    @Getter
    @Setter
-   private String country;
+   private String name;
 
    @Getter
    @Setter

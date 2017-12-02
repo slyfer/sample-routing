@@ -1,41 +1,51 @@
-/*
- * Copyright 2002-2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package it.sample.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.http.HttpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 
+import it.sample.model.Country;
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * CountriesEndpoint.java: This is the default employee search service
+ * Internal endpoint
  *
- * @author Vigil Bose
- * @author Gary Russell
+ * @author ccardone
  */
 @Component("countriesEndpoint")
+@Slf4j
 public class CountriesEndpoint {
 
-   private static Log log = LogFactory.getLog(CountriesEndpoint.class);
+   @Autowired
+   private RestCountriesClient restCountriesClient;
 
-   public Message<?> get(Message<?> msg) {
+   // TODO ADD AUTHENTICATION AND PAGINATION
+   public Message<List<Country>> get(Message<?> msg) {
 
-      log.trace("Coutries Endpoint");
-      Message<String> message = new GenericMessage<>("example");
+      log.trace("Countries Endpoint");
+
+      List<Country> allWithNameAndCurrency;
+      int statusCode = 200;
+
+      try {
+         allWithNameAndCurrency = restCountriesClient.getAllWithNameAndCurrency();
+
+      } catch (Exception e) {
+         log.error("Unexpected error calling rest countries" + e.getMessage(), e);
+         statusCode = 500;
+         allWithNameAndCurrency = Collections.emptyList();
+      }
+
+      Map<String, Object> headers = new HashMap<>();
+      headers.put(HttpHeaders.STATUS_CODE, statusCode);
+      Message<List<Country>> message = new GenericMessage<>(allWithNameAndCurrency, headers);
       return message;
    }
 
