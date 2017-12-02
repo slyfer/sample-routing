@@ -15,7 +15,7 @@
     <!-- LOGGERS -->
     <logger name="it.sample" level="TRACE" />
 
-    <logger name="org.springframework" level="INFO" />
+    <logger name="org.springframework" level="TRACE" />
 
     <!-- ROOT LOGGER -->
     <root level="TRACE">

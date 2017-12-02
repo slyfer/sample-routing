@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-ws="http://www.springframework.org/schema/integration/ws"
+       xmlns:int-http="http://www.springframework.org/schema/integration/http"
+       xmlns:stream="http://www.springframework.org/schema/integration/stream"
+       xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/integration/ws http://www.springframework.org/schema/integration/ws/spring-integration-ws.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/stream http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+		http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- we are using annotation for configuration -->
+    <context:component-scan base-package="it.sample"/>
+    <int:annotation-config/>
+
+    <!-- channels -->
+    <int:channel id="countriesRequestChannel"/>
+    <int:channel id="countriesOutputChannel" />
+
+    <!-- inbound gateway for /countries -->
+    <int-http:inbound-gateway id="ws-inbound-gateway"
+                              request-channel="countriesRequestChannel"
+                              reply-channel="countriesOutputChannel"
+                              supported-methods="GET"
+                              view-name="/countries"
+                              path="/countries">
+    </int-http:inbound-gateway>
+
+    <!-- service for countries -->
+    <int:service-activator ref="countriesEndpoint"
+                           method="get"
+                           input-channel="countriesRequestChannel"
+                           output-channel="countriesOutputChannel" />
+
+
+    <!-- configuring views -->
+    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <property name="order" value="1" />
+
+        <!-- setup default content type -->
+        <property name="contentNegotiationManager">
+            <bean class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+                <property name="defaultContentType" value="application/json"/>
+            </bean>
+        </property>
+
+        <!-- by default simply renders json -->
+        <property name="defaultViews">
+            <list>
+                <bean class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+            </list>
+        </property>
+    </bean>
+
+</beans>
