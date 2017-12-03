@@ -9,6 +9,8 @@
 		http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <import resource="security-config.xml"/>
+
     <!-- we are using annotation for configuration -->
     <context:component-scan base-package="it.sample"/>
     <int:annotation-config/>

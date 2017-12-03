@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.http.HttpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
@@ -30,7 +31,7 @@ public class CountriesEndpoint {
    @Autowired
    private RestCountriesClient restCountriesClient;
 
-   // TODO ADD AUTHENTICATION
+   @Secured("ROLE_REST_HTTP_USER")
    public Message<CountriesServiceResponse> get(Message<MultiValueMap<String, String>> msg) {
       int statusCode = 200;
       CountriesServiceResponse countriesServiceResponse;
